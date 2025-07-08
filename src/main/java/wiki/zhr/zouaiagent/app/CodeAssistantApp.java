@@ -1,17 +1,18 @@
 package wiki.zhr.zouaiagent.app;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
-import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;
+import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
-import wiki.zhr.zouaiagent.FileBasedChatMemory;
 import wiki.zhr.zouaiagent.advisor.MyLoggerAdvisor;
-import wiki.zhr.zouaiagent.advisor.ReReadingAdvisor;
+import wiki.zhr.zouaiagent.chatmemory.FileBasedChatMemory;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvis
  **/
 @Component
 @Slf4j
-public class CodeAssistant {
+public class CodeAssistantApp {
 
     private final ChatClient chatClient;
 
@@ -47,7 +48,7 @@ public class CodeAssistant {
             "请始终以专业、实用的方式回复用户，不要生成冗余内容或过度解释。如你无法明确判断某个上下文信息，请向用户提问澄清，而不是臆测。\n" +
             "你的目标是：帮助用户产出可靠、易维护、风险低的单元测试，并提升其代码质量和工程稳定性。";
 
-    public CodeAssistant(ChatModel dashscopeChatModel) {
+    public CodeAssistantApp(ChatModel dashscopeChatModel) {
         // 初始化基于文件的对话记忆
         String fileDir = System.getProperty("user.dir") + "/tmp/chat-memory";
         ChatMemory chatMemory = new FileBasedChatMemory(fileDir);
@@ -102,8 +103,38 @@ public class CodeAssistant {
         return codeAssistantReport;
     }
 
+    // AI 代码助手知识库问答
+    @Resource
+    private VectorStore codeAssistantVectorStore;
+
+    @Resource
+    private Advisor codeAssistantRagCloudAdvisor;
+
+    /**
+     * 和 RAG 知识库进行对话
+     */
+    public String doChatWithRag(String message, String chatId) {
+        ChatResponse chatResponse = chatClient
+                .prompt()
+                .user(message)
+                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                // 开启日志，便于观察效果
+                .advisors(new MyLoggerAdvisor())
+                // 应用知识库问答
+//                .advisors(new QuestionAnswerAdvisor(codeAssistantVectorStore))
+                // 应用增强检索服务（云知识库服务）
+                .advisors(codeAssistantRagCloudAdvisor)
+                .call()
+                .chatResponse();
+        String content = chatResponse.getResult().getOutput().getText();
+        log.info("content: {}", content);
+        return content;
+    }
+
 
 
 
 }
+
 

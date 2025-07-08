@@ -7,20 +7,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @SpringBootTest
 class CodeAssistantTest {
 
     @Resource
-    private CodeAssistant codeAssistant;
+    private CodeAssistantApp codeAssistantApp;
 
     @Test
     void testdoChat() {
         String chatId = UUID.randomUUID().toString();
         // 第一轮
         String message = "你好，我是邹浩冉";
-        String answer = codeAssistant.doChat(message, chatId);
+        String answer = codeAssistantApp.doChat(message, chatId);
         Assertions.assertNotNull(answer);
         // 第二轮
         message = "给你这段代码，请你帮我生成单元测试 & 做代码审查" +
@@ -38,11 +36,11 @@ class CodeAssistantTest {
                 "            return System.currentTimeMillis();\n" +
                 "        }\n" +
                 "    }";
-        answer = codeAssistant.doChat(message, chatId);
+        answer = codeAssistantApp.doChat(message, chatId);
         Assertions.assertNotNull(answer);
         // 第三轮
         message = "我忘了我叫啥名字了，你帮我回忆一下";
-        answer = codeAssistant.doChat(message, chatId);
+        answer = codeAssistantApp.doChat(message, chatId);
         Assertions.assertNotNull(answer);
     }
 
@@ -66,7 +64,16 @@ class CodeAssistantTest {
             \\}
         \\}
         """;
-        CodeAssistant.CodeAssistantReport codeAssistantReport = codeAssistant.doChatWithReport(message, chatId);
+        CodeAssistantApp.CodeAssistantReport codeAssistantReport = codeAssistantApp.doChatWithReport(message, chatId);
         Assertions.assertNotNull(codeAssistantReport);
     }
+
+    @Test
+    void doChatWithRag() {
+        String chatId = UUID.randomUUID().toString();
+        String message = "状态码为409的错误分支是什么？返回什么信息？";
+        String answer =  codeAssistantApp.doChatWithRag(message, chatId);
+        Assertions.assertNotNull(answer);
+    }
+
 }

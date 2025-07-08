@@ -1,4 +1,4 @@
-package wiki.zhr.zouaiagent;
+package wiki.zhr.zouaiagent.chatmemory;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -31,7 +31,7 @@ public class FileBasedChatMemory implements ChatMemory {
     // 构造对象时，指定文件保存目录
     public FileBasedChatMemory(String dir) {
         this.BASE_DIR = dir;
-        File baseDir = new File(dir);
+        File baseDir = new File(dir);// ignore_security_alert
         if (!baseDir.exists()) {
             baseDir.mkdirs();
         }

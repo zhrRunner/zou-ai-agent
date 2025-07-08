@@ -11,6 +11,13 @@ import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.utils.JsonUtils;
 
+/*
+ * @Author Zou hr
+ * @Description SDK调用大模型
+ * @Date 18:25 2025/6/29
+ * @Param
+ * @return
+ **/
 public class SdkAiInvoke {
     public static GenerationResult callWithMessage() throws ApiException, NoApiKeyException, InputRequiredException {
         Generation gen = new Generation();

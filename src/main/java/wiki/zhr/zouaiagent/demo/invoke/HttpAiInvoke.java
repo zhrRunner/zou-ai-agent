@@ -32,6 +32,13 @@ import cn.hutool.json.JSONObject;
  * cn.hutool:hutool-all
  * </pre>
  */
+/*
+ * @Author Zou hr
+ * @Description HTTP远程调用大模型
+ * @Date 18:25 2025/6/29
+ * @Param
+ * @return
+ **/
 public class HttpAiInvoke {
 
     /**

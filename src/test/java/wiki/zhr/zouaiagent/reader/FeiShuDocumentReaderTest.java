@@ -1,6 +1,8 @@
 
 package wiki.zhr.zouaiagent.reader;
 
+import jakarta.annotation.Resource;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,25 +11,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.document.Document;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
  * Test class for FeiShuDocumentReader. Tests will be skipped if FEISHU_APP_ID and
  * FEISHU_APP_SECRET environment variables are not set.
  */
-//@EnabledIfEnvironmentVariable(named = "FEISHU_APP_ID", matches = ".+")
-//@EnabledIfEnvironmentVariable(named = "FEISHU_APP_SECRET", matches = ".+")
 public class FeiShuDocumentReaderTest {
 
 	private static final Logger log = LoggerFactory.getLogger(FeiShuDocumentReaderTest.class);
 
-	// Get configuration from environment variables
-	private static final String FEISHU_APP_ID = FeiShuConfig.FEISHU_APP_ID;
 
-	private static final String FEISHU_APP_SECRET = FeiShuConfig.FEISHU_APP_SECRET;
+	// Get configuration from environment variables
+	private static final String FEISHU_APP_ID = System.getenv("FEISHU_APP_ID");
+
+	private static final String FEISHU_APP_SECRET = System.getenv("FEISHU_APP_SECRET");
 
 	// Optional user token and document ID from environment variables
-	private static final String FEISHU_USER_TOKEN = System.getenv("FEISHU_USER_TOKEN");
+	private  String FEISHU_USER_TOKEN;
 
 	private static final String FEISHU_DOCUMENT_ID = System.getenv("FEISHU_DOCUMENT_ID");
 
@@ -52,13 +55,22 @@ public class FeiShuDocumentReaderTest {
 
 		// Create FeiShuResource with environment variables
 		feiShuResource = FeiShuResource.builder().appId(FEISHU_APP_ID).appSecret(FEISHU_APP_SECRET).build();
-	}
+
+        try {
+            FEISHU_USER_TOKEN = getFeiShuUserToken();
+        } catch (IOException e) {
+			System.out.println("Failed to read FeiShu user token from file: " + e.getMessage());
+        }
+    }
 
 	@Test
 	void feiShuDocumentTest() {
+		System.out.println(String.format("FEISHU_APP_ID = %s, FEISHU_APP_SECRET = %s, FEISHU_DOCUMENT_ID = %s",
+				FEISHU_APP_ID, FEISHU_APP_SECRET, FEISHU_DOCUMENT_ID));
+		System.out.println("feiShuResource = " + feiShuResource);
 		feiShuDocumentReader = new FeiShuDocumentReader(feiShuResource);
 		List<Document> documentList = feiShuDocumentReader.get();
-		log.info("result:{}", documentList);
+		log.info("feiShuDocumentTest result:{}", documentList);
 	}
 
 	@Test
@@ -69,7 +81,7 @@ public class FeiShuDocumentReaderTest {
 
 		feiShuDocumentReader = new FeiShuDocumentReader(feiShuResource, FEISHU_USER_TOKEN);
 		List<Document> documentList = feiShuDocumentReader.get();
-		log.info("result:{}", documentList);
+		log.info("feiShuDocumentTestByUserToken result:{}", documentList);
 	}
 
 	@Test
@@ -82,7 +94,13 @@ public class FeiShuDocumentReaderTest {
 
 		feiShuDocumentReader = new FeiShuDocumentReader(feiShuResource, FEISHU_USER_TOKEN, FEISHU_DOCUMENT_ID);
 		List<Document> documentList = feiShuDocumentReader.get();
-		log.info("result:{}", documentList);
+		log.info("feiShuDocumentTestByUserTokenAndDocumentId result:{}", documentList);
+	}
+
+	private String getFeiShuUserToken() throws IOException {
+		// 从tmp/feishu_user_token.txt文件中读取FEISHU_USER_TOKEN
+		String token = FileUtils.readFileToString(new File(System.getProperty("user.dir") + "/tmp/feishu_user_token.txt"), "UTF-8");
+		return token;
 	}
 
 }

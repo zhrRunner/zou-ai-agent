@@ -27,4 +27,10 @@ knife4j:
   setting:
     language: zh_cn
 
+## 飞书应用配置
+#feishu:
+#  app-id: ${FEISHU_APP_ID:}
+#  app-secret: ${FEISHU_APP_SECRET:}
+#  document-id: ${FEISHU_DOCUMENT_ID:}
+
 

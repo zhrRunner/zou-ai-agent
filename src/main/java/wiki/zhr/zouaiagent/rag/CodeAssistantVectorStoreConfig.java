@@ -18,11 +18,14 @@ public class CodeAssistantVectorStoreConfig {
     private CodeAssistantDocumentLoader codeAssistantDocumentLoader;
 
     @Bean
-    VectorStore loveAppVectorStore(EmbeddingModel dashscopeEmbeddingModel) {
+    VectorStore CodeAssistantAppVectorStore(EmbeddingModel dashscopeEmbeddingModel) {
         SimpleVectorStore simpleVectorStore = SimpleVectorStore.builder(dashscopeEmbeddingModel)
                 .build();
-        // 加载文档
-        List<Document> documents = codeAssistantDocumentLoader.loadMarkdowns();
+        // 加载markdown文档
+//        List<Document> documents = codeAssistantDocumentLoader.loadMarkdowns();
+
+        // 加载FeiShu文档
+        List<Document> documents = new CodeAssistantFeiShuLoader().loadFeiShuDocs();
         simpleVectorStore.add(documents);
         return simpleVectorStore;
     }

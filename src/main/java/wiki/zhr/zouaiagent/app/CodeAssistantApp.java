@@ -122,9 +122,9 @@ public class CodeAssistantApp {
                 // 开启日志，便于观察效果
                 .advisors(new MyLoggerAdvisor())
                 // 应用知识库问答
-//                .advisors(new QuestionAnswerAdvisor(codeAssistantVectorStore))
+                .advisors(new QuestionAnswerAdvisor(codeAssistantVectorStore))
                 // 应用增强检索服务（云知识库服务）
-                .advisors(codeAssistantRagCloudAdvisor)
+//                .advisors(codeAssistantRagCloudAdvisor)
                 .call()
                 .chatResponse();
         String content = chatResponse.getResult().getOutput().getText();

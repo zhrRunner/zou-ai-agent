@@ -15,16 +15,16 @@ import java.util.List;
  * Test class for FeiShuDocumentReader. Tests will be skipped if FEISHU_APP_ID and
  * FEISHU_APP_SECRET environment variables are not set.
  */
-@EnabledIfEnvironmentVariable(named = "FEISHU_APP_ID", matches = ".+")
-@EnabledIfEnvironmentVariable(named = "FEISHU_APP_SECRET", matches = ".+")
+//@EnabledIfEnvironmentVariable(named = "FEISHU_APP_ID", matches = ".+")
+//@EnabledIfEnvironmentVariable(named = "FEISHU_APP_SECRET", matches = ".+")
 public class FeiShuDocumentReaderTest {
 
 	private static final Logger log = LoggerFactory.getLogger(FeiShuDocumentReaderTest.class);
 
 	// Get configuration from environment variables
-	private static final String FEISHU_APP_ID = System.getenv("FEISHU_APP_ID");
+	private static final String FEISHU_APP_ID = FeiShuConfig.FEISHU_APP_ID;
 
-	private static final String FEISHU_APP_SECRET = System.getenv("FEISHU_APP_SECRET");
+	private static final String FEISHU_APP_SECRET = FeiShuConfig.FEISHU_APP_SECRET;
 
 	// Optional user token and document ID from environment variables
 	private static final String FEISHU_USER_TOKEN = System.getenv("FEISHU_USER_TOKEN");

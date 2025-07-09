@@ -3,6 +3,14 @@ spring:
     name: zou-ai-agent
   profiles:
     active: local
+  ai:
+    vectorstore:
+      pgvector:
+        index-type: HNSW
+        dimensions: 1536
+        distance-type: COSINE_DISTANCE
+        max-document-batch-size: 10000 # Optional: Maximum number of documents per batch
+
 
 server:
   port: 8123

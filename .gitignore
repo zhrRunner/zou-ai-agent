@@ -1,5 +1,5 @@
 ### CUSTOM ###
-src/main/resources/application-local.yml
+**/application-local.yml
 tmp
 
 HELP.md

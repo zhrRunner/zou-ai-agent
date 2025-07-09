@@ -1,9 +1,0 @@
-spring:
-  application:
-    name: zou-ai-agent
-  ai:
-    dashscope:
-      api-key: sk-c07f92246dc74a2e9dadc2d60522dc63
-      chat:
-        options:
-          model: qwen-plus

@@ -10,9 +10,11 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import wiki.zhr.zouaiagent.advisor.MyLoggerAdvisor;
 import wiki.zhr.zouaiagent.chatmemory.FileBasedChatMemory;
+import wiki.zhr.zouaiagent.rag.QueryRewriter;
 
 import java.util.List;
 
@@ -105,36 +107,45 @@ public class CodeAssistantApp {
 
     // AI 代码助手知识库问答
     @Resource
-    private VectorStore codeAssistantVectorStore;
+    @Qualifier("CodeAssistantAppVectorStore")
+    private VectorStore codeAssistantAppVectorStore;
+
+    @Resource(name = "pgVectorVectorStore")
+    private VectorStore pgVectorVectorStore;
+
 
     @Resource
     private Advisor codeAssistantRagCloudAdvisor;
+
+    @Resource
+    private QueryRewriter queryRewriter;
 
     /**
      * 和 RAG 知识库进行对话
      */
     public String doChatWithRag(String message, String chatId) {
+        // 使用 QueryRewriter 对用户输入进行重写
+        String rewrittenMessage = queryRewriter.doQueryRewrite(message);
+        log.info("rewrittenMessage: {}", rewrittenMessage);
         ChatResponse chatResponse = chatClient
                 .prompt()
-                .user(message)
+                .user(rewrittenMessage)
                 .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 // 开启日志，便于观察效果
                 .advisors(new MyLoggerAdvisor())
-                // 应用知识库问答
-                .advisors(new QuestionAnswerAdvisor(codeAssistantVectorStore))
-                // 应用增强检索服务（云知识库服务）
+                // 应用知识库问答 （可选飞书获取文档 \ 获取md文档）
+                .advisors(new QuestionAnswerAdvisor(codeAssistantAppVectorStore))
+                // 应用增强检索服务（云知识库服务————百炼）
 //                .advisors(codeAssistantRagCloudAdvisor)
+                // 应用RAG 检索增强服务（基于 PgVector 的向量存储————云数据库）
+//                .advisors(new QuestionAnswerAdvisor(pgVectorVectorStore))
                 .call()
                 .chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
         log.info("content: {}", content);
         return content;
     }
-
-
-
-
 }
 
 

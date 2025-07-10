@@ -3,11 +3,13 @@ package wiki.zhr.zouaiagent.controller;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import jakarta.servlet.http.HttpSession;
+import wiki.zhr.zouaiagent.rag.CodeAssistantFeiShuLoader;
 import wiki.zhr.zouaiagent.reader.FeiShuConfig;
 import wiki.zhr.zouaiagent.reader.FeiShuDocumentReader;
 
@@ -21,6 +23,12 @@ public class OAuthController {
 
     @Resource
     FeiShuConfig feiShuConfig;
+
+    @Resource
+    CodeAssistantFeiShuLoader codeAssistantFeiShuLoader;
+
+    @Resource(name = "pgVectorVectorStore")
+    private VectorStore pgVectorVectorStore;
 
     private String appId = System.getenv("FEISHU_APP_ID");
 
@@ -41,18 +49,27 @@ public class OAuthController {
         // 2. 将 Token 存储到 Session
         session.setAttribute("feishu_user_token", userToken);
 
-        // 3. 返回成功响应（可自定义跳转前端页面）
+        // 3. 根据获得的token，将加载到的feishu文档写入PgVector
+        // TODO 待优化，这里采用加载后入库，后续需要用户输入飞书配置信息，并同意是否存储到 PgVector 向量数据库，
+        // 还需提供用户对该数据库的CRUD功能
+        List<Document> documentList = codeAssistantFeiShuLoader.loadFeiShuDocs();
+        // 写入PgVectorVectorStore
+        pgVectorVectorStore.add(documentList);
+        log.info("写入PgVector向量数据库 dockmentList:{}", documentList);
+
+
+        // 4. 返回成功响应（可自定义跳转前端页面）
         return ResponseEntity.ok()
                 .contentType(MediaType.TEXT_HTML)
                 .body("""
                     <!DOCTYPE html>
                     <html>
                     <head>
-                        <title>授权成功</title>
+                        <title>Authorization successful</title>
                     </head>
                     <body>
-                        <h1>飞书授权成功！</h1>
-                        <p>Token 已存储，可以关闭此页面。</p>
+                        <h1>Lark Authorization successful</h1>
+                        <p>Token has been saved. You can close this page now.</p>
                         <script>
                             // 可选：通知父窗口刷新
                             window.opener.postMessage('auth-success', '*');
@@ -115,7 +132,6 @@ public class OAuthController {
         } catch (java.io.IOException e) {
             System.err.println("写入 access_token 到文件失败: " + e.getMessage());
         }
-
         return accessToken;
     }
 }

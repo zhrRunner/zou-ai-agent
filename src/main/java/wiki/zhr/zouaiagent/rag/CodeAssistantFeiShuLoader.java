@@ -1,8 +1,10 @@
 package wiki.zhr.zouaiagent.rag;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 import wiki.zhr.zouaiagent.reader.FeiShuDocumentReader;
 import wiki.zhr.zouaiagent.reader.FeiShuResource;
@@ -24,9 +26,13 @@ public class CodeAssistantFeiShuLoader {
 
     private String FEISHU_USER_TOKEN;
 
-
     private FeiShuResource feiShuResource;
 
+    @Resource
+    private MyTokenTextSplitter myTokenTextSplitter;
+
+    @Resource
+    private MyKeywordEnricher myKeywordEnricher;
 
     public List<Document> loadFeiShuDocs() {
         try {
@@ -43,8 +49,16 @@ public class CodeAssistantFeiShuLoader {
 
         feiShuDocumentReader = new FeiShuDocumentReader(feiShuResource, FEISHU_USER_TOKEN, FEISHU_DOCUMENT_ID);
         List<Document> documentList = feiShuDocumentReader.get();
-        log.info("result:{}", documentList);
-        return documentList;
+
+        // RAG优化
+        // 使用切词器自主切分文档
+        List<Document> splitDocuments = myTokenTextSplitter.splitCustomized(documentList);
+
+        // 自动补充关键词元信息
+        List<Document> enrichedDocuments = myKeywordEnricher.enrichDocuments(splitDocuments);
+
+        log.info("enrichedDocuments:{}", enrichedDocuments);
+        return enrichedDocuments;
     }
 
     private String getFeiShuUserToken() throws IOException {

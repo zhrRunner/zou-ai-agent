@@ -19,7 +19,7 @@ class CodeAssistantAppRagCloudAdvisorConfig {
     private String dashScopeApiKey;
 
     @Bean
-    public Advisor loveAppRagCloudAdvisor() {
+    public Advisor codeAssistantRagCloudAdvisor() {
         DashScopeApi dashScopeApi = new DashScopeApi(dashScopeApiKey);
         final String KNOWLEDGE_INDEX = "DR";
         DocumentRetriever documentRetriever = new DashScopeDocumentRetriever(dashScopeApi,

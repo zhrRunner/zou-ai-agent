@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.UUID;
 
 @SpringBootTest
-class CodeAssistantTest {
+class CodeAssistantAppTest {
 
     @Resource
     private CodeAssistantApp codeAssistantApp;
@@ -72,6 +72,7 @@ class CodeAssistantTest {
     void doChatWithRag() {
         String chatId = UUID.randomUUID().toString();
         String message = "状态码为409的错误分支是什么？返回什么信息？";
+//        String message = "zouhr是哪个大学的？";  // 测试PgVector
         String answer =  codeAssistantApp.doChatWithRag(message, chatId);
         Assertions.assertNotNull(answer);
     }

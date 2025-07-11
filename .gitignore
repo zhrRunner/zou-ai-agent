@@ -1,5 +1,6 @@
 ### CUSTOM ###
 **/application-local.yml
+**/mail.setting
 tmp
 
 HELP.md

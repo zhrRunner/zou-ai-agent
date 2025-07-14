@@ -10,7 +10,7 @@ import java.util.List;
  * 这是一个切词器，将List<Document>进行切分使得数量增加
  */
 @Component
-class MyTokenTextSplitter {
+public class MyTokenTextSplitter {
     public List<Document> splitDocuments(List<Document> documents) {
         TokenTextSplitter splitter = new TokenTextSplitter();
         return splitter.apply(documents);

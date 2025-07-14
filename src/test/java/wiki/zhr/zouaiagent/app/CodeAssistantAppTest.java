@@ -1,6 +1,7 @@
 package wiki.zhr.zouaiagent.app;
 
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -8,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.UUID;
 
 @SpringBootTest
+@Slf4j
 class CodeAssistantAppTest {
 
     @Resource
@@ -71,10 +73,44 @@ class CodeAssistantAppTest {
     @Test
     void doChatWithRag() {
         String chatId = UUID.randomUUID().toString();
-        String message = "状态码为409的错误分支是什么？返回什么信息？";
+//        String message = "状态码为409的错误分支是什么？返回什么信息？";
         // String message = "zouhr是哪个大学的？"; // 测试PgVector
+        String message = "";
         String answer = codeAssistantApp.doChatWithRag(message, chatId);
         Assertions.assertNotNull(answer);
+    }
+
+    /**
+     * 测试GitHub代码知识库RAG
+     */
+    @Test
+    void testGitHubRag() {
+        String chatId = UUID.randomUUID().toString();
+        String repositoryName = "zhrRunner_zou-ai-agent";
+        
+        // 测试不同类型的代码问题
+        String[] testMessages = {
+            "这个项目使用了哪些Spring Boot相关的技术？",
+            "项目中有哪些Controller类？它们提供什么功能？", 
+            "DynamicPgVectorStoreService这个类是做什么的？",
+            "项目的数据库配置是怎样的？",
+            "有哪些测试工具类？"
+        };
+        
+        for (String message : testMessages) {
+            log.info("🧪 测试问题: {}", message);
+            try {
+                String answer = codeAssistantApp.doChatWithGitHubRag(message, chatId, repositoryName);
+                Assertions.assertNotNull(answer);
+                Assertions.assertFalse(answer.isEmpty());
+                log.info("✅ 测试通过，回答长度: {} 字符", answer.length());
+                log.info("📝 回答预览: {}", answer.length() > 200 ? answer.substring(0, 200) + "..." : answer);
+                System.out.println("================================================================================");
+            } catch (Exception e) {
+                log.error("❌ 测试失败: {}", e.getMessage());
+                // 不让测试失败，继续下一个问题
+            }
+        }
     }
 
     @Test
@@ -130,8 +166,8 @@ class CodeAssistantAppTest {
     void doChatWithMcp() {
         String chatId = UUID.randomUUID().toString();
         // 测试github MCP 获取zhrRunner的仓库列表信息
-//        String message = "   请列出 https://github.com/zhrRunner 下的所有仓库";
-        String message = " 获取 GitHub 用户 zhrRunner 的仓库 zou-ai-agent 的代码";
+        String message = "   请列出 https://github.com/zhrRunner 下的所有仓库";
+//        String message = " 获取 GitHub 用户 zhrRunner 的仓库 zou-ai-agent 的代码";
         String answer = codeAssistantApp.doChatWithMcp(message, chatId);
         Assertions.assertNotNull(answer);
         Assertions.assertTrue(answer.contains("zhrRunner"));

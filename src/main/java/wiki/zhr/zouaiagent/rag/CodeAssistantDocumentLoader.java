@@ -14,7 +14,7 @@ import java.util.List;
 
 @Component
 @Slf4j
-class CodeAssistantDocumentLoader {
+public class CodeAssistantDocumentLoader {
 
     // 用于加载 Markdown 文档的资源解析器（多篇）
     private final ResourcePatternResolver resourcePatternResolver;

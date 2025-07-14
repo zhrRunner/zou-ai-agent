@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @Slf4j
-class CodeAssistantAppRagCloudAdvisorConfig {
+public class CodeAssistantAppRagCloudAdvisorConfig {
 
     @Value("${spring.ai.dashscope.api-key}")
     private String dashScopeApiKey;

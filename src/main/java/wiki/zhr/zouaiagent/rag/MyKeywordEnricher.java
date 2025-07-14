@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-class MyKeywordEnricher {
+public class MyKeywordEnricher {
     @Resource
     private ChatModel dashscopeChatModel;
 
-    List<Document> enrichDocuments(List<Document> documents) {
+    public List<Document> enrichDocuments(List<Document> documents) {
         KeywordMetadataEnricher enricher = new KeywordMetadataEnricher(this.dashscopeChatModel, 5);
         return enricher.apply(documents);
     }

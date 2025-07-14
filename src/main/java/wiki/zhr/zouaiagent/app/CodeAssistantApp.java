@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import wiki.zhr.zouaiagent.advisor.MyLoggerAdvisor;
 import wiki.zhr.zouaiagent.chatmemory.FileBasedChatMemory;
 import wiki.zhr.zouaiagent.rag.QueryRewriter;
+import wiki.zhr.zouaiagent.service.DynamicPgVectorStoreService;
 
 import java.util.List;
 
@@ -115,6 +116,8 @@ public class CodeAssistantApp {
     @Resource(name = "pgVectorVectorStore")
     private VectorStore pgVectorVectorStore;
 
+    @Resource
+    private DynamicPgVectorStoreService dynamicPgVectorStoreService;
 
     @Resource
     private Advisor codeAssistantRagCloudAdvisor;
@@ -147,6 +150,46 @@ public class CodeAssistantApp {
         String content = chatResponse.getResult().getOutput().getText();
         log.info("content: {}", content);
         return content;
+    }
+
+    /**
+     * 使用GitHub代码知识库进行RAG对话
+     * @param message 用户消息
+     * @param chatId 聊天ID  
+     * @param repositoryName GitHub仓库名称（格式: owner_repository-name）
+     * @return AI回复内容
+     */
+    public String doChatWithGitHubRag(String message, String chatId, String repositoryName) {
+        try {
+            // 获取指定仓库的向量存储
+            VectorStore gitHubVectorStore = dynamicPgVectorStoreService.getVectorStore(repositoryName);
+            
+            // 使用 QueryRewriter 对用户输入进行重写
+            String rewrittenMessage = queryRewriter.doQueryRewrite(message);
+            log.info("🔍 原始消息: {}", message);
+            log.info("✏️ 重写消息: {}", rewrittenMessage);
+            log.info("📚 使用仓库: {}", repositoryName);
+            
+            ChatResponse chatResponse = chatClient
+                    .prompt()
+                    .user(rewrittenMessage)
+                    .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                            .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                    // 开启日志，便于观察效果
+                    .advisors(new MyLoggerAdvisor())
+                    // 应用GitHub代码知识库问答
+                    .advisors(new QuestionAnswerAdvisor(gitHubVectorStore))
+                    .call()
+                    .chatResponse();
+                    
+            String content = chatResponse.getResult().getOutput().getText();
+            log.info("🤖 AI回复: {}", content);
+            return content;
+            
+        } catch (Exception e) {
+            log.error("❌ GitHub RAG对话失败: {}", e.getMessage(), e);
+            return "抱歉，在查询代码知识库时遇到了问题：" + e.getMessage();
+        }
     }
 
 

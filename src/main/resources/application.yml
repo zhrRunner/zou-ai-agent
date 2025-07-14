@@ -10,6 +10,12 @@ spring:
         dimensions: 1536
         distance-type: COSINE_DISTANCE
         max-document-batch-size: 10000 # Optional: Maximum number of documents per batch
+    mcp:
+      client:
+        stdio:
+          servers-configuration: classpath:mcp-servers.json
+
+
 
 
 server:
@@ -35,10 +41,6 @@ knife4j:
   setting:
     language: zh_cn
 
-## 飞书应用配置
-#feishu:
-#  app-id: ${FEISHU_APP_ID:}
-#  app-secret: ${FEISHU_APP_SECRET:}
-#  document-id: ${FEISHU_DOCUMENT_ID:}
+
 
 

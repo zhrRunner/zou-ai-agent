@@ -41,6 +41,7 @@ public class PDFGenerationTool {
                 // 添加段落并关闭文档
                 document.add(paragraph);
             }
+            // TODO: 生成PDF后可以进行其他操作，如上传到云存储等，然后返回文件链接供用户下载
             return "PDF generated successfully to: " + filePath;
         } catch (IOException e) {
             return "Error generating PDF: " + e.getMessage();

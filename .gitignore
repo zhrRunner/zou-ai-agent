@@ -1,6 +1,7 @@
 ### CUSTOM ###
 **/application-local.yml
 **/mail.setting
+**/mcp-servers.json
 tmp
 
 HELP.md

@@ -17,7 +17,8 @@ public class MyTokenTextSplitter {
     }
 
     public List<Document> splitCustomized(List<Document> documents) {
-        TokenTextSplitter splitter = new TokenTextSplitter(200, 100, 10, 5000, true);
+        // 限制每个chunk最大1800字符，为DashScope embedding留出安全边界 (2048-248=1800)
+        TokenTextSplitter splitter = new TokenTextSplitter(400, 100, 10, 1800, true);
         return splitter.apply(documents);
     }
 }

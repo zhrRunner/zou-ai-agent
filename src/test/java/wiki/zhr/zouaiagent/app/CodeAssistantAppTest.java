@@ -166,8 +166,9 @@ class CodeAssistantAppTest {
     void doChatWithMcp() {
         String chatId = UUID.randomUUID().toString();
         // 测试github MCP 获取zhrRunner的仓库列表信息
-        String message = "   请列出 https://github.com/zhrRunner 下的所有仓库";
+//        String message = "   请列出 https://github.com/zhrRunner 下的所有仓库";
 //        String message = " 获取 GitHub 用户 zhrRunner 的仓库 zou-ai-agent 的代码";
+        String message = "帮我搜索一些关于mac电脑的图片";
         String answer = codeAssistantApp.doChatWithMcp(message, chatId);
         Assertions.assertNotNull(answer);
         Assertions.assertTrue(answer.contains("zhrRunner"));

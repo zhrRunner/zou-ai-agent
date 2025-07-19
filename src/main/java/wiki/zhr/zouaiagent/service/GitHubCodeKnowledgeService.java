@@ -212,7 +212,7 @@ public class GitHubCodeKnowledgeService {
     }
 
     /**
-     * 从本地缓存创建Document
+     * 从本地缓存创建Document 
      */
     private Document createDocumentFromLocalFile(String owner, String repository, String branch,
             GitHubFile file, Path localFilePath) throws IOException {

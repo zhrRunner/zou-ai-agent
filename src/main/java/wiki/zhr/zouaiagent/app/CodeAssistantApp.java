@@ -14,6 +14,7 @@ import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 import wiki.zhr.zouaiagent.advisor.MyLoggerAdvisor;
 import wiki.zhr.zouaiagent.chatmemory.FileBasedChatMemory;
 import wiki.zhr.zouaiagent.rag.QueryRewriter;
@@ -104,7 +105,7 @@ public class CodeAssistantApp {
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 .call()
                 .entity(CodeAssistantReport.class);
-        log.info("loveReport: {}", codeAssistantReport);
+        log.info("codeAssistantReport: {}", codeAssistantReport);
         return codeAssistantReport;
     }
 
@@ -191,6 +192,23 @@ public class CodeAssistantApp {
             return "抱歉，在查询代码知识库时遇到了问题：" + e.getMessage();
         }
     }
+
+    /**
+     * 使用流式响应进行聊天
+     * @param message 用户输入的消息
+     * @param chatId 聊天会话ID，用于标识对话上下文
+     * @return AI助手的流式回复内容
+     */
+    public Flux<String> doChatByStream(String message, String chatId) {
+        return chatClient
+                .prompt()
+                .user(message)
+                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .stream()
+                .content();
+    }
+
 
 
     /**

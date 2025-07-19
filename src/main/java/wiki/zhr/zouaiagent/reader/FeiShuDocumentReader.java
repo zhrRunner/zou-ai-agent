@@ -18,10 +18,7 @@ import java.util.List;
 
 import static java.lang.String.format;
 
-/**
- * @author wblu214
- * @author <a href="mailto:2897718178@qq.com">wblu214</a>
- */
+
 public class FeiShuDocumentReader implements DocumentReader {
 
 	private static final Logger log = LoggerFactory.getLogger(FeiShuDocumentReader.class);
